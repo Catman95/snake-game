@@ -107,11 +107,7 @@ class Food {
         this.position = freeTiles[randomPos];
     }
 }
-class Game {
-    constructor(start_pos){
-        this.start_pos = start_pos;
-    }
-}
+
 function start(){
     let direction = 'right';
     document.addEventListener('keydown', function(e){
