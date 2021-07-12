@@ -1,0 +1,24 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+canvas {
+    display: block;
+    background-color: #000;
+    margin: auto;
+}
+
+#canvas-holder {
+    width: 500px;
+    height: 500px;
+    position: relative;
+}
+
+#score {
+    position: absolute;
+    top: 13px;
+    right: 20px;
+    color: #fff;
+}
