@@ -1,8 +1,8 @@
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 
-let columns = 30;
-let rows = 30;
+let columns = 20;
+let rows = 20;
 let gap = 0;
 let pixelSize = canvas.getAttribute('width') / columns;
 let xPos = 0;
@@ -10,7 +10,7 @@ let yPos = 0;
 
 class Snake {
     position = [];
-    positions_arr = [];
+    positions_arr = [[1, 1]];
     current_direction = 'right';
     string = '';
     constructor(color, length, position){
@@ -107,8 +107,43 @@ class Food {
         this.position = freeTiles[randomPos];
     }
 }
+class Game {
+    constructor(score, speed){
+        this.score = score;
+        this.speed = speed;
+    }
+    increase_score(){
+        this.score++;
+    }
+}
+//Looks for an array in another array
+function inArray(arr, search){
+    let found = false;
+    for(let x of arr){
+        if(x[0] === search[0] && x[1] === search[1]){
+            found = true;
+        }
+    }
+    return found;
+}
 
-function start(){
+//Checks what tiles are not occupied by the snake so that food can be placed in one of them
+function freeTiles(snake){
+    let tiles = [];
+    for(let i = 1; i < columns - 1; i++){
+        for(let j = 1; j < rows - 1; j++){
+            let currentTile = [i, j];
+            if(inArray(snake.positions_arr.slice(0, snake.length), currentTile)){
+                continue;
+            }else {
+                tiles.push(currentTile);
+            }
+        }
+    }
+    return tiles;
+}
+
+function start(game, snake, food){
     let direction = 'right';
     document.addEventListener('keydown', function(e){
         switch(e.key){
@@ -128,48 +163,35 @@ function start(){
                 break;
         }
     });
-    function inArray(arr, search){
-        let found = false;
-        for(let x of arr){
-            if(x[0] === search[0] && x[1] === search[1]){
-                found = true;
-            }
-        }
-        return found;
-    }
-    function freeTiles(snake){
-        let tiles = [];
-        for(let i = 1; i < columns - 1; i++){
-            for(let j = 1; j < rows - 1; j++){
-                let currentTile = [i, j];
-                if(inArray(snake.positions_arr.slice(0, snake.length), currentTile)){
-                    continue;
-                }else {
-                    tiles.push(currentTile);
-                }
-            }
-        }
-        return tiles;
-    }
-    let snake = new Snake('#61A02A', 1, [1, 1]);
-    let food = new Food('#B10417', [4, 4]);
     drawFrame(snake, food);
-    let speed = 100;
-    let score = 0;
     let frameDrawing = setInterval(function(){
         let data = snake.move(direction, food.position);
         if(data.food){
             snake.eat();
-            score++;
+            game.increase_score();
             food.newPosition(freeTiles(snake));
-            document.querySelector("#score").textContent = `Score: ${score}`;
+            document.querySelector("#score").textContent = `Score: ${game.score}`;
         }
         if(data.wall || data.self){
             clearInterval(frameDrawing);
+            setTimeout(function(){
+                document.querySelector("#gameover-interface").style.display = "flex";
+                document.querySelector("#gameover-interface").innerHTML = `
+                    <p>Game Over</p>
+                    <p>Score: ${game.score}</p>
+                    <button id="play-again">Play again</button>
+                `;
+                document.querySelector("#play-again").addEventListener('click', function(){
+                    document.querySelector("#gameover-interface").style.display = "none";
+                    document.querySelector("#countdown-interface").style.display = "flex";
+                    countdown(3);
+                });
+                document.querySelector("#score").style.visibility = "hidden";
+            }, 1000);
             return;
         }
         drawFrame(snake, food);
-    }, speed);
+    }, game.speed);
 }
 function drawFrame(snake, food){
     for(let i = 0; i < columns; i++){
@@ -193,4 +215,50 @@ function drawFrame(snake, food){
     }
 }
 
-start();
+function drawFirstFrame(snake, food){
+    for(let i = 0; i < columns; i++){
+        for(j = 0; j < rows; j++){
+            let color = '#2d2d2d';
+            for(let z = 0; z < snake.length; z++){
+                let curPos = snake.positions_arr[z];
+                if(i === curPos[0] && j === curPos[1]){
+                    color = snake.color;
+                }
+            }
+            if(i === food.position[0] && j === food.position[1]){
+                color = food.color;
+            }
+            if(i === 0 || j === 0 || i === columns - 1  || j === rows - 1){
+                color = 'gray';
+            }
+            ctx.fillStyle = color;
+            ctx.fillRect(i * pixelSize, j * pixelSize, pixelSize, pixelSize);
+        }
+    }
+}
+
+function countdown(seconds){
+    let game = new Game(0, 50);
+    let snake = new Snake('#61A02A', 2, [2, 1]);
+    let food = new Food('#B10417', [4, 4]);
+    document.querySelector("#score").textContent = `Score: ${game.score}`;
+    document.querySelector("#score").style.visibility = "visible";
+    drawFirstFrame(snake, food);
+    document.querySelector("#countdown-interface").innerHTML = `<p class="countdown">${seconds}</p>`;
+    let countdownInterval = setInterval(function(){
+        seconds--;
+        document.querySelector("#countdown-interface").innerHTML = `<p class="countdown">${seconds}</p>`;
+        if(seconds === 0){
+            clearInterval(countdownInterval);
+            document.querySelector("#countdown-interface").style.display = "none";
+            document.querySelector("#score").style.visibility = "visible";
+            start(game, snake, food);
+        }
+    }, 1000);
+}
+
+document.querySelector("#start-game").addEventListener('click', function(){
+    document.querySelector("#start-interface").style.display = "none";
+    document.querySelector("#countdown-interface").style.display = "flex";
+    countdown(3);
+});

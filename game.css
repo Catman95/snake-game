@@ -1,7 +1,24 @@
+@font-face {
+    font-family: 'Orbitron';
+    src: url('fonts/Orbitron/Orbitron-VariableFont_wght.ttf');
+}
+@font-face {
+    font-family: 'PressStart2P';
+    src: url('fonts/Press_Start_2P/PressStart2P-Regular.ttf');
+}
+@font-face {
+    font-family: 'Wallpoet';
+    src: url('fonts/Wallpoet/Wallpoet-Regular.ttf');
+}
+@font-face {
+    font-family: 'Silk';
+    src: url('fonts/Silkscreen/slkscr.ttf');
+}
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Silk';
 }
 
 canvas {
@@ -17,8 +34,56 @@ canvas {
 }
 
 #score {
+    visibility: hidden;
     position: absolute;
-    top: 13px;
+    top: 15px;
     right: 20px;
     color: #fff;
+}
+
+.interface {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+#start-interface {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#countdown-interface {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+#gameover-interface {
+    display: none;
+    color: #fff;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 60px;
+    align-items: center;
+    background-color: rgba(1, 1, 1, 0.5);
+}
+
+.countdown {
+    color: #fff;
+    font-size: 100px;
+}
+
+button {
+    padding: 20px;
+    border: none;
+    outline: none;
+    background-color: seagreen;
+    cursor: pointer;
 }
